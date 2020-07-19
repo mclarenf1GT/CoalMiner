@@ -1,0 +1,168 @@
+var robot= require('robotjs');
+function main() {
+    console.log ("Starting Coal Miner V1...Thanks fren");
+    sleep (5000);
+
+    while (true) {
+    var coal = Findcoal();
+    if (coal == false) {
+        rotateCamera ();
+        continue;
+    
+     }
+
+     robot.moveMouseSmooth(coal.x, coal.y);
+     robot.mouseClick();
+
+     sleep (3000);
+
+    var lastcoal = confirmLastCoal ();
+    if (lastcoal == true) {
+    
+    Dropcoal ();
+
+    }
+
+    else
+    Findcoal ();
+
+
+   }
+
+    
+
+
+}
+
+function Findcoal () {
+
+    var x = 0 ,y = 83, width = 1065, height = 463;
+    var img = robot.screen.capture(x, y, width, height);
+    var coal_colors = ["3c3c28","393726","2e2e20","343422","313121"];
+
+    for (var i = 0; i < 500; i++) {
+        var random_x = getRandomInt (0, width-1);
+        var random_y = getRandomInt (0, height-1);
+        var sample_color = img.colorAt (random_x,random_y);
+
+        if (coal_colors.includes(sample_color)) {
+            var screen_x = random_x + x;
+            var screen_y = random_y + y;
+
+            if (confirmCoal(screen_x, screen_y)) {
+                console.log ("Found coal at:", + screen_x + ","+ screen_y + " color" + sample_color);
+                return {x: screen_x,y: screen_y};
+            } else {
+                    console.log ("Unconfirmed coal at:", +screen_x + "." + screen_y + "color" + sample_color);
+
+                }
+
+            }
+
+        }
+
+    return false;
+
+
+}
+
+
+function Dropcoal () {
+
+    //spot 1
+    var inventory_x = 1115;
+    var inventory_y = 482;
+    //spot 28
+    var inventory_x28 = 1243;
+    var inventory_y28 = 700;
+
+    var inv_coal_colors = ["393726","3a3927","856b4a","363523","3b3b27","2e2e20","333321"];
+    var pixel_color = robot.getPixelColor (inventory_x28,inventory_y28);
+
+    //var wait_cycles = 0;
+    //var wait_cycles = 9;
+
+    //while (pixel_color != inventory_log_color && wait_cycles < max_wait_cycles) {
+
+
+    
+
+    if (pixel_color == inv_coal_colors); {
+        robot.moveMouseSmooth(inventory_x, inventory_y);
+        robot.mouseClick('right');
+        sleep(300);
+        robot.moveMouseSmooth(inventory_x, inventory_y + 43);
+        robot.mouseClick();
+        sleep(1000);
+
+        robot.moveMouseSmooth(inventory_x28, inventory_y28);
+        robot.mouseClick('right');
+        sleep(300);
+        robot.moveMouseSmooth(inventory_x28, inventory_y28 + 25);
+        robot.mouseClick();
+        sleep(1000);
+
+
+
+    }
+
+}
+
+
+
+
+
+
+
+
+
+function confirmLastCoal (screen_x1 ,screen_y2) {
+    robot.moveMouse (screen_x1,screen_y2);
+    sleep (300);
+    var check_x1 = 1242;
+    var check_y1 = 699;
+    var pixel_color_coal = robot.getPixelColor (check_x1,check_y1);
+    return pixel_color_coal == ["393726","3a3927","856b4a","363523","3b3b27","2e2e20","333321"];
+
+}
+
+
+
+
+
+
+function confirmCoal (screen_x,screen_y) {
+    robot.moveMouse (screen_x, screen_y);
+    sleep (300);
+    var check_x = 40;
+    var check_y = 92;
+    var pixel_color = robot.getPixelColor (check_x,check_y);
+    return pixel_color == "00ffff";
+
+}
+
+
+
+
+function rotateCamera() {
+    console.log("Rotating camera");
+    robot.keyToggle('right', 'down');
+    sleep(1000);
+    robot.keyToggle('right', 'up');
+}
+
+
+
+function getRandomInt(min, max) {
+    // inclusive of min and max
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
+function sleep(ms) {
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+main();
